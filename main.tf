@@ -23,32 +23,15 @@ resource "aws_subnet" "main_public_subnet" {
     Name = "dev-public"
   }
 }
-resource "aws_internet_gateway" "main_internet_gtw" {
-  vpc_id = module.main_vpc.vpc_id
-  tags = {
-    Name = "dev-gtw"
-  }
-}
-resource "aws_route_table" "main_rt" {
-  vpc_id = module.main_vpc.vpc_id
-
-  tags = {
-    Name = "dev-public-rt"
-  }
-}
-resource "aws_route" "default_r" {
-  route_table_id         = aws_route_table.main_rt.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.main_internet_gtw.id
-}
-resource "aws_route_table_association" "main_public_associate" {
-  subnet_id      = aws_subnet.main_public_subnet.id
-  route_table_id = aws_route_table.main_rt.id
-}
-
 resource "aws_key_pair" "main_auth" {
   key_name   = "mainkey"
   public_key = file("~/.ssh/main_key.pub")
+}
+module "route" {
+  source="./Terraform-aws-route"
+  vpc_id= module.main_vpc.vpc_id
+  tag                    = var.tagtype  
+  subnet_id       = aws_subnet.main_public_subnet.id
 }
 module "main_node" {
   source                  = "./Terraform-aws-ec2"

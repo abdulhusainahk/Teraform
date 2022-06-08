@@ -1,5 +1,5 @@
 
-resource "aws_instance" "this" {
+resource "aws_instance" "main_node" {
   count = var.create && !var.create_spot_instance ? var.instance_count : 0
   ami                  = var.ami
   instance_type        = var.instance_type
