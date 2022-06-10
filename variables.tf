@@ -28,7 +28,7 @@ variable "startaz" {
 }
 variable "cpu_core_count" {
   type    = number
-  default = 1
+  default = null
 }
 variable "hibernation" {
   type    = bool

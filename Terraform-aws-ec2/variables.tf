@@ -16,7 +16,7 @@ variable "cpu_core_count" {
 variable "cpu_threads_per_core" {
   description = "Sets the number of CPU threads per core for an instance (has no effect unless cpu_core_count is also set)."
   type        = number
-  default     = 1
+  default     = 2
 }
 //variable "security_groups" {
 //  type = string
@@ -195,8 +195,8 @@ variable "private_ip" {
 
 variable "root_block_device" {
   description = "Customize details about the root block device of the instance. See Block Devices below for details"
-  type        = list(any)
-  default     = []
+  type        = map(any)
+  default     = {}
 }
 
 variable "secondary_private_ips" {

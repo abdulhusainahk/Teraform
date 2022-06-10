@@ -13,16 +13,17 @@ module "security_grp" {
   ingress_rules = var.ingress_rules
   egresscdr     = var.egresscdr
 }
-
-resource "aws_subnet" "main_public_subnet" {
-  vpc_id                  = module.main_vpc.vpc_id
-  cidr_block              = "10.121.1.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "us-west-1a"
-  tags = {
+module "main_public_subnet" {
+  source="./Terraform-subnet"
+  vpc_id= module.main_vpc.vpc_id
+  cdr ="10.121.1.0/24"
+  map_public_ip_on_launch= true
+  az= "us-west-1a"
+  tags={
     Name = "dev-public"
   }
 }
+
 resource "aws_key_pair" "main_auth" {
   key_name   = "mainkey"
   public_key = file("~/.ssh/main_key.pub")
@@ -31,7 +32,7 @@ module "route" {
   source="./Terraform-aws-route"
   vpc_id= module.main_vpc.vpc_id
   tag                    = var.tagtype  
-  subnet_id       = aws_subnet.main_public_subnet.id
+  subnet_id       = module.main_public_subnet.id
 }
 module "main_node" {
   source                  = "./Terraform-aws-ec2"
@@ -42,13 +43,13 @@ module "main_node" {
   cpu_threads_per_core    = var.cpu_core_count != null ? var.cpu_threads_per_core : null //
   key_name                = aws_key_pair.main_auth.id                                    //
   monitoring              = var.monitoring                                               //
-  subnet_id               = aws_subnet.main_public_subnet.id                             //
+  subnet_id               = module.main_public_subnet.id                             //
   vpc_security_group_ids  = [module.security_grp.sg_id]                                  //
   path                    = "./userdata.tpl"                                             //
   name                    = var.tagtype                                                  //
   instance_count          = var.instance_count                                           // 
   host_os                 = var.host_os                                                  //  
-  enclave_options_enabled = var.cpu_core_count >= 2 ? var.enclave_options_enabled : null
+  enclave_options_enabled = var.enclave_options_enabled // Not applicable and should be disable for instance lower then t2.medium
   timeouts                = var.timeouts
   tags = { //
     Terraform   = "true"
