@@ -116,8 +116,22 @@ resource "aws_instance" "main_node" {
   //credit_specification {
   //  cpu_credits = local.is_t_instance_type ? var.cpu_credits : null
   //}
+  connection {
+    type="ssh"
+    user="ubuntu"
+    private_key=file("~/.ssh/main_key")
+    host= self.public_ip
+  }
+  provisioner "remote-exec" {
+    on_failure = continue
+    inline=[
+      "sudo apt install -y nginx",
+      "sudo systemctl start nginx"
+    ]
+  }
   provisioner "local-exec" {
-    command = templatefile("${var.host_os}-ssh-config.tpl", {
+    on_failure = continue
+    command = templatefile("${path.root}/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ubuntu",
       identityfile = "~/.ssh/main_key"
@@ -265,14 +279,14 @@ resource "aws_spot_instance_request" "main_node" {
   //credit_specification {
   //  cpu_credits = local.is_t_instance_type ? var.cpu_credits : null
   //}
-  /*provisioner "local-exec" {
-    command = templatefile("${var.host_os}-ssh-config.tpl", {
+  provisioner "local-exec" {
+    command = templatefile("${path.cwd}/${var.host_os}-ssh-config.tpl", {
       hostname     = self.public_ip,
       user         = "ubuntu",
       identityfile = "~/.ssh/main_key"
     })
     interpreter = var.host_os == "windows" ? ["Powershell", "-Command"] : ["bash", "-c"]
-  }*/
+  }
   timeouts {
     create = lookup(var.timeouts, "create", null)
     delete = lookup(var.timeouts, "delete", null)

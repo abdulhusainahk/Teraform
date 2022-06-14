@@ -51,7 +51,7 @@ module "main_node" {
   host_os                 = var.host_os                                                  //  
   enclave_options_enabled = var.enclave_options_enabled // Not applicable and should be disable for instance lower then t2.medium
   timeouts                = var.timeouts
-  create_spot_instance = true
+  create_spot_instance = false
   tags = { //
     Terraform   = "true"
     Environment = "dev"
