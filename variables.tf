@@ -71,7 +71,14 @@ variable "ingress_rules" {
     protocol    = string
     cdr         = list(string)
   }))
-  default = [{
+  default = [ {
+    cdr = [ "0.0.0.0/0" ]
+    description = "ingress rule"
+    from_port = 0
+    protocol = "-1"
+    to_port = 0
+  } ]
+  /*default = [{
     description = "ingress rule for ingress http "
     from_port   = 80
     to_port     = 80
@@ -90,7 +97,7 @@ variable "ingress_rules" {
     protocol    = "tcp"
     cdr         = ["103.170.252.2/32"]
     }
-  ]
+  ]*/
 }
 variable "timeouts" {
   description = "Define maximum timeout for creating, updating, and deleting EC2 instance resources"
